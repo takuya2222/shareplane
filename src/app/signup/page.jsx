@@ -4,6 +4,14 @@ import OAuth from "../../components/OAuth";
 import React, { useState } from "react";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 import Link from "next/link";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { db } from "../../firebase";
+import { serverTimestamp, setDoc,doc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 
 export default function signUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,12 +20,40 @@ export default function signUp() {
     email: "",
     password: "",
   });
+
   const { name, email, password } = formData;
+  const router = useRouter();
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
       [e.target.id]: e.target.value,
     }));
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault(); //これを加えるとsignupボタンを押してもページが再読み込みされない
+
+    try {
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+        //入力フォームから受け取ったデータ
+      );
+
+      updateProfile(auth.currentUser, {
+        displayName: name,
+      });
+      const user = userCredential.user;
+      const formDataCopy = { ...formData };
+      delete formDataCopy.password;
+      formDataCopy.timestamp = serverTimestamp();
+      await setDoc(doc(db, "users", user.uid), formDataCopy);
+      router.push("/"); //ユーザをデータベースに加えた後に、Homeへ戻るようにする。
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -33,10 +69,10 @@ export default function signUp() {
           />
         </div>
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
-          <form>
+          <form onSubmit={onSubmit}>
             <input
               type="text"
-              id="emnameail"
+              id="name"
               value={name}
               onChange={onChange}
               placeholder="氏名"
