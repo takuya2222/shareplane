@@ -10,8 +10,9 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { db } from "../../firebase";
-import { serverTimestamp, setDoc,doc } from "firebase/firestore";
+import { serverTimestamp, setDoc, doc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+// import { toast } from "react-toastify";
 
 export default function signUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -53,6 +54,8 @@ export default function signUp() {
       router.push("/"); //ユーザをデータベースに加えた後に、Homeへ戻るようにする。
     } catch (error) {
       console.log(error);
+      
+      // toast.error("登録上でエラーが発生しました");
     }
   };
 
