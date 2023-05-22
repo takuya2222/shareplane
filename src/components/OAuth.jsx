@@ -21,7 +21,7 @@ export default function OAuth() {
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
 
-      //以下の記述でgoogleアカウントでログインすると、firestoreにuser情報が追加される
+      //以下の記述でgoogleアカウントでログインすると、firestoreにuser情報が追加される SnapShotが存在しない場合
       if (!docSnap.exists()) {
         await setDoc(docRef, {
           name: user.displayName,

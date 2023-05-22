@@ -1,11 +1,14 @@
 "use client";
 import OAuth from "../../components/OAuth";
-
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
-import Link from "next/link";
+import { signInWithEmailAndPassword, auth, getAuth } from "firebase/auth";
+// import { toast } from "react-toastify";
 
 export default function signin() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -17,6 +20,23 @@ export default function signin() {
       ...prevState,
       [e.target.id]: e.target.value,
     }));
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const auth = getAuth();
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      if(userCredential.user){
+        router.push("/");
+      }
+    } catch (error) {
+      // toast.error("Bad user credentials");
+    }
   };
 
   return (
@@ -32,7 +52,7 @@ export default function signin() {
           />
         </div>
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
-          <form>
+          <form onSubmit={onSubmit}>
             <input
               type="email"
               id="email"
